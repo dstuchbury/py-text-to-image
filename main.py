@@ -62,8 +62,8 @@ source_logo = 'logo.png'
 # source_logo = 'tutorials_point.jpg'
 personalisation_image = create_personalisation_image(personalised, use_font, pers_colour)
 
-generate_text_beneath_logo(logo, personalisation_image)
-generate_text_above_logo(logo, personalisation_image)
+generate_text_beneath_logo(source_logo, personalisation_image)
+generate_text_above_logo(source_logo, personalisation_image)
 
 
 
