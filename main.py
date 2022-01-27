@@ -58,8 +58,8 @@ personalised = name_input+'\'s Artwork'
 use_font = ImageFont.truetype('firasans.ttf', 50)
 pers_colour = (200, 100, 10)
 
-logo = 'logo.png'
-# logo = 'tutorials_point.jpg'
+source_logo = 'logo.png'
+# source_logo = 'tutorials_point.jpg'
 personalisation_image = create_personalisation_image(personalised, use_font, pers_colour)
 
 generate_text_beneath_logo(logo, personalisation_image)
