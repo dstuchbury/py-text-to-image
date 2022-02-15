@@ -34,7 +34,7 @@ def generate_text_beneath_logo(logo, name):
     final_image.paste(image, (0, 0))
     final_image.paste(name, (name_x_pos(image, name), image.height + 10))
 
-    final_image.show()
+    # final_image.show()
     final_image.save('beneath.png')
 
     return final_image
@@ -47,19 +47,19 @@ def generate_text_above_logo(logo, name):
     final_image.paste(image, (0, name.height + 10))
     final_image.paste(name, (name_x_pos(image, name), 0))
 
-    final_image.show()
+    # final_image.show()
     final_image.save('above.png')
 
     return final_image
 
 
-name_input = "IT Department"
+name_input = "Will"
 personalised = name_input+'\'s Artwork'
-use_font = ImageFont.truetype('firasans.ttf', 50)
-pers_colour = (200, 100, 10)
+use_font = ImageFont.truetype('archivo.ttf', 50)
+pers_colour = (20, 100, 200)
 
-source_logo = 'logo.png'
-# source_logo = 'tutorials_point.jpg'
+# source_logo = 'logo.png'
+source_logo = '12239402.png'
 personalisation_image = create_personalisation_image(personalised, use_font, pers_colour)
 
 generate_text_beneath_logo(source_logo, personalisation_image)
