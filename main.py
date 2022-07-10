@@ -134,17 +134,17 @@ def composite_image_and_text(
 
     final_image = ImageDraw.Draw(txt)
 
-    w, h = final_image.textsize(personalisation)
+    width, height = final_image.textsize(personalisation.text, personalisation.font)
 
-    x = (image.width - w) / 2
-    y = (image.height - h) / 2
+    x_coord = (image.width - width) / 2
+    y_coord = (image.height - height) / 2
     if x_pos:
-        x = x_pos
+        x_coord = x_pos
     if y_pos:
-        y = y_pos
+        y_coord = y_pos
 
     final_image.text(
-        (x, y),
+        (x_coord, y_coord),
         personalisation.text,
         fill=personalisation.colour,
         font=personalisation.font,
@@ -165,7 +165,7 @@ SOURCE_LOGO = 'teacher.png'
 
 personalise = ToPersonalise(
     'Joe Bloggs',
-    ImageFont.truetype('firasans.ttf, 280'),
+    ImageFont.truetype('firasans.ttf', 280),
     (250, 250, 20, 250)
 )
 
