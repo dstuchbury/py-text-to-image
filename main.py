@@ -1,7 +1,27 @@
+"""
+An interesting dive in to Pillow and the image processing possibilities.
+"""
 from PIL import Image, ImageDraw, ImageFont
 
 
+class ToPersonalise:
+    """
+    Defines the element of personalisation. In this case some text, the font and the colour
+    """
+
+    def __init__(self, text: str, font: ImageFont, colour: tuple):
+        self.text = text
+        self.font = font
+        self.colour = colour
+
+
 def get_text_dimensions(text_string, font_used):
+    """
+    Gets the dimensions of the resulting image created from given text in a given font
+    :param text_string:
+    :param font_used:
+    :return:
+    """
     # https://stackoverflow.com/a/46220683/9263761
     ascent, descent = font_used.getmetrics()
 
@@ -11,51 +31,105 @@ def get_text_dimensions(text_string, font_used):
     return text_width, text_height
 
 
-def create_image_from_text(text_input, colour):
-    font = personalised_text_font
-    img = Image.new('RGBA', get_text_dimensions(text_input, font), (255, 255, 255, 0))
+def create_image_from_text(personalisation: ToPersonalise):
+    """
+    takes input ToPersonalise, creating an image with appropriate dimensions to fit
+    :param personalisation:
+    :return: the created image.
+    """
+    img = Image.new('RGBA', get_text_dimensions(
+        personalisation.text,
+        personalisation.font),
+                    (255, 255, 255, 0)
+                    )
     draw = ImageDraw.Draw(img)
-    draw.text((0, 0), text_input, font=font, fill=colour)
+    draw.text((0, 0), personalisation.text, font=personalisation.font, fill=personalisation.colour)
 
     return img
 
 
-def create_final_image(logo, name):
-    return Image.new('RGBA', (logo.size[0], (logo.size[1] + name.size[1] + 10)), (255, 255, 255, 0))
+def create_final_image(image: Image, text: Image):
+    """
+    Creates an image onto which the original artwork and the text image are placed onto
+    :param image:
+    :param text:
+    :return: Blank image of the required size with a transparent background.
+    """
+    return Image.new(
+        'RGBA',
+        (image.size[0], (image.size[1] + text.size[1] + 10)),
+        (255, 255, 255, 0)
+    )
 
 
-def text_x_pos_to_centre(logo_input, name_input):
-    return int((logo_input.width / 2) - (name_input.size[0] / 2))
+def text_x_pos_to_centre(image, text):
+    """
+    Finds the x co-ordinate required to place text in the middle of a supplied artwork
+    :param image:
+    :param text:
+    :return:
+    """
+    return int((image.width / 2) - (text.size[0] / 2))
 
 
-def generate_text_beneath_image(logo_input, text_input, colour_input):
-    image = Image.open(logo_input)
-    use_text = create_image_from_text(text_input, colour_input)
+def generate_text_beneath_image(image, personalisation):
+    """
+    Generates a new image containing the source text placed centered and below the source image
+    :param image:
+    :param personalisation:
+    :return:
+    """
+    use_image = Image.open(image)
+    text_as_image = create_image_from_text(personalisation)
 
-    final_image = create_final_image(image, use_text)
-    final_image.paste(image, (0, 0))
-    final_image.paste(use_text, (text_x_pos_to_centre(image, use_text), image.height + 10))
+    final_image = create_final_image(use_image, text_as_image)
+    final_image.paste(use_image, (0, 0))
+    final_image.paste(
+        text_as_image,
+        (text_x_pos_to_centre(use_image, text_as_image),
+         use_image.height + 10)
+    )
 
     final_image.save('beneath.png')
 
-    return final_image
+    return {"action": "complete"}
 
 
-def generate_text_above_image(logo_input, text_input, colour_input):
-    image = Image.open(logo_input)
-    use_text = create_image_from_text(text_input, colour_input)
+def generate_text_above_image(image, personalisation):
+    """
+    Generates a new image containing the source text placed centered and above the source image
+    :param image:
+    :param personalisation:
+    :return:
+    """
+    use_image = Image.open(image)
+    text_as_image = create_image_from_text(personalisation)
 
-    final_image = create_final_image(image, use_text)
-    final_image.paste(image, (0, use_text.height + 10))
-    final_image.paste(use_text, (text_x_pos_to_centre(image, use_text), 0))
+    final_image = create_final_image(use_image, text_as_image)
+    final_image.paste(use_image, (0, text_as_image.height + 10))
+    final_image.paste(text_as_image, (text_x_pos_to_centre(use_image, text_as_image), 0))
 
     final_image.save('above.png')
 
-    return final_image
+    return {"action": "complete"}
 
 
-def composite_image_and_text(logo, personalisation, colour, x_pos = None, y_pos = None):
-    image = Image.open(logo).convert("RGBA")
+def composite_image_and_text(
+        source_image: str,
+        personalisation: ToPersonalise,
+        x_pos=None,
+        y_pos=None
+):
+    """
+    Composites supplied text onto the source image at co-ordinates specified.
+    :param source_image:
+    :param personalisation:
+    :param x_pos:
+    :param y_pos:
+    :return:
+    """
+    image = Image.open(source_image).convert('RGBA')
+    # we use alpha_composite, so both images have to be the same size.
     txt = Image.new('RGBA', image.size, (255, 255, 255, 0))
 
     final_image = ImageDraw.Draw(txt)
@@ -71,29 +145,30 @@ def composite_image_and_text(logo, personalisation, colour, x_pos = None, y_pos 
 
     final_image.text(
         (x, y),
-        personalisation,
-        fill=colour,
-        font=personalised_text_font,
+        personalisation.text,
+        fill=personalisation.colour,
+        font=personalisation.font,
         anchor="mm"
     )
 
     combined = Image.alpha_composite(image, txt)
 
-    combined.save("combined.png")
-    combined.save("combined.png")
+    combined.save('combined.png')
 
-    return combined
+    return {"action": "complete"}
 
 
-# source_logo = 'logo.png'
-# source_logo = 'tutorials_point.jpg'
-source_logo = 'teacher.png'
-# source_logo = '12239402.png'
-personalised_text = "Joe Bloggs"
-personalised_text_colour = (250, 250, 20, 250)
-personalised_text_font = ImageFont.truetype('firasans.ttf', 280)
+# SOURCE_LOGO = 'logo.png'
+# SOURCE_LOGO = 'tutorials_point.jpg'
+SOURCE_LOGO = 'teacher.png'
+# SOURCE_LOGO = '12239402.png'
 
-# generate_text_beneath_image(source_logo, personalised_text, personalised_text_colour)
-# generate_text_above_image(source_logo, personalised_text, personalised_text_colour)
-composite_image_and_text(source_logo, personalised_text, personalised_text_colour, 1800, 2600)
-# composite_image_and_text(source_logo, personalised_text, personalised_text_colour)
+personalise = ToPersonalise(
+    'Joe Bloggs',
+    ImageFont.truetype('firasans.ttf, 280'),
+    (250, 250, 20, 250)
+)
+
+generate_text_beneath_image(SOURCE_LOGO, personalise)
+generate_text_above_image(SOURCE_LOGO, personalise)
+composite_image_and_text(SOURCE_LOGO, personalise, 1800, 2600)
