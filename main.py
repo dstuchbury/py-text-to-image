@@ -117,15 +117,13 @@ def generate_text_above_image(image, personalisation):
 def composite_image_and_text(
         source_image: str,
         personalisation: ToPersonalise,
-        x_pos=None,
-        y_pos=None
+        coords: tuple = None,
 ):
     """
     Composites supplied text onto the source image at co-ordinates specified.
     :param source_image:
     :param personalisation:
-    :param x_pos:
-    :param y_pos:
+    :param coords:
     :return:
     """
     image = Image.open(source_image).convert('RGBA')
@@ -136,15 +134,15 @@ def composite_image_and_text(
 
     width, height = final_image.textsize(personalisation.text, personalisation.font)
 
-    x_coord = (image.width - width) / 2
-    y_coord = (image.height - height) / 2
-    if x_pos:
-        x_coord = x_pos
-    if y_pos:
-        y_coord = y_pos
+    x_pos = (image.width - width) / 2
+    y_pos = (image.height - height) / 2
+    if coords[0]:
+        x_pos = coords[0]
+    if coords[1]:
+        y_pos = coords[1]
 
     final_image.text(
-        (x_coord, y_coord),
+        (x_pos, y_pos),
         personalisation.text,
         fill=personalisation.colour,
         font=personalisation.font,
@@ -171,4 +169,4 @@ personalise = ToPersonalise(
 
 generate_text_beneath_image(SOURCE_LOGO, personalise)
 generate_text_above_image(SOURCE_LOGO, personalise)
-composite_image_and_text(SOURCE_LOGO, personalise, 1800, 2600)
+composite_image_and_text(SOURCE_LOGO, personalise, (1800, 2600))
